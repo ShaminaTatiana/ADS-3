@@ -101,7 +101,7 @@ int eval(std::string pst) {
             while (ch != ' ') {
                 insertInt += (ch - 48) * x;
                 x *= 10;
-                xch= pst[++i];
+                ch = pst[++i];
             }
             stackInt.push(insertInt);
         } else {
