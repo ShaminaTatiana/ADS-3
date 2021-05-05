@@ -2,8 +2,8 @@
 #include <string>
 #include "tstack.h"
 
-int priority(char x) {
-    switch (x) {
+int priority(char ch) {
+    switch (ch) {
     case '(':
         return 0;
     case ')':
@@ -22,23 +22,25 @@ int priority(char x) {
 }
 
 std::string infx2pstfx(std::string inf) {
+    std::string pstfx;
     int i = 0;
+    char ch = inf[i];
     char top = 0;
     TStack <char> stackChar;
-    std::string out;
-    for (i ; i < inf.length() ; i++) {
-        int prior;
-        prior = priority(inf[i]);
-        if (prior > -1) {
-            if ((prior == 0 || prior > priority(top) ||
-                 stackChar.isEmpty()) && inf[i] != ')') {
+    while (ch) {
+        int p;
+        p = priority(ch);
+
+        if (p > -1) {
+            if ((p == 0 || p > priority(top) ||
+                stackChar.isEmpty()) && ch != ')') {
                 if (stackChar.isEmpty())
-                    top = inf[i];
-                stackChar.push(inf[i]);
-            } else if (inf[i] == ')') {
+                    top = ch;
+                stackChar.push(ch);
+            } else if (ch == ')') {
                 while (stackChar.get() != '(') {
-                    out.push_back(stackChar.get());
-                    out.push_back(' ');
+                    pstfx.push_back(stackChar.get());
+                    pstfx.push_back(' ');
                     stackChar.pop();
                 }
                 stackChar.pop();
@@ -46,75 +48,78 @@ std::string infx2pstfx(std::string inf) {
                     top = 0;
             } else {
                 while (!stackChar.isEmpty() &&
-                       priority(stackChar.get()) >= prior) {
-                    out.push_back(stackChar.get());
-                    out.push_back(' ');
+                       priority(stackChar.get()) >= p) {
+                    pstfx.push_back(stackChar.get());
+                    pstfx.push_back(' ');
                     stackChar.pop();
                 }
                 if (stackChar.isEmpty())
-                    top = inf[i];
-                stackChar.push(inf[i]);
+                    top = ch;
+                stackChar.push(ch);
             }
         } else {
-            out.push_back(inf[i]);
-            out.push_back(' ');
+            pstfx.push_back(ch);
+            pstfx.push_back(' ');
         }
+
+        ch = inf[++i];
     }
     while (!stackChar.isEmpty()) {
-        out.push_back(stackChar.get());
-        out.push_back(' ');
+        pstfx.push_back(stackChar.get());
+        pstfx.push_back(' ');
         stackChar.pop();
     }
-    out.erase(out.end() - 1, out.end());
-    return out;
+    pstfx.erase(pstfx.end() - 1, pstfx.end());
+    return pstfx;
 }
-int vichisl(char operate, int number1, int number2) {
-switch (operate) {
-case '+':
-return number1 + number2;
-break;
-case '-':
-return number1 - number2;
-break;
-case '*':
-return number1 * number2;
-break;
-case '/':
-return number1 / number2;
-break;
-}
+
+int calculating(char oper, int num1, int num2) {
+    switch (oper) {
+    case '+':
+        return num1 + num2;
+        break;
+    case '-':
+        return num1 - num2;
+        break;
+    case '*':
+        return num1 * num2;
+        break;
+    case '/':
+        return num1 / num2;
+        break;
+    }
 }
 
 int eval(std::string pst) {
     TStack <int> stackInt;
-    int i = 0, result = 0;
-    char x = pst[i];
-    while (x) {
-        if (x >= '0' && x <= '9') {
+    int i = 0, res = 0;
+    char ch = pst[i];
+    while (ch) {
+        if (ch >= '0' && ch <= '9') {
             int insertInt = 0;
-            int dec = 1;
-            while (x != ' ') {
-                insertInt += (x - 48) * dec;
-                dec *= 10;
-                x = pst[++i];
+            int x = 1;
+            while (ch != ' ') {
+                insertInt += (ch - 48) * x;
+                x *= 10;
+                xch= pst[++i];
             }
             stackInt.push(insertInt);
         } else {
-            char operate = x;
+            char oper = ch;
             i++;
-            int number2 = stackInt.get();
+            int num2 = stackInt.get();
             stackInt.pop();
-            int number1 = stackInt.get();
+            int num1 = stackInt.get();
             stackInt.pop();
-            int result = calculating(operate, number1, number2);
-            stackInt.push(result);
+            int res = calculating(oper, num1, num2);
+            stackInt.push(res);
         }
         if (i < pst.size())
-            x = pst[++i];
+            ch = pst[++i];
         else
-            x = 0;
+            ch = 0;
     }
-    result = stackInt.get();
+    res = stackInt.get();
     stackInt.pop();
-    return result;
+    return res;
 }
